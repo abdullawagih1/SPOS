@@ -1,0 +1,102 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --background: 250 249 247;
+    --foreground: 14 13 12;
+  }
+
+  * {
+    box-sizing: border-box;
+  }
+
+  html {
+    scroll-behavior: smooth;
+  }
+
+  body {
+    background-color: rgb(250, 249, 247);
+    color: rgb(14, 13, 12);
+    font-family: var(--font-dm-sans), system-ui, sans-serif;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  h1, h2, h3 {
+    font-family: var(--font-syne), sans-serif;
+  }
+
+  code, pre, .font-mono {
+    font-family: var(--font-dm-mono), monospace;
+  }
+}
+
+@layer components {
+  .border-line {
+    border-color: rgba(14, 13, 12, 0.1);
+  }
+
+  .border-line-subtle {
+    border-color: rgba(14, 13, 12, 0.06);
+  }
+
+  /* Streaming text animation */
+  .stream-cursor::after {
+    content: '▋';
+    animation: blink 1s step-end infinite;
+    color: rgb(61, 58, 237);
+    margin-left: 2px;
+  }
+
+  @keyframes blink {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0; }
+  }
+
+  /* Scrollbar styling */
+  ::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+  }
+
+  ::-webkit-scrollbar-track {
+    background: transparent;
+  }
+
+  ::-webkit-scrollbar-thumb {
+    background: rgba(14, 13, 12, 0.15);
+    border-radius: 3px;
+  }
+
+  ::-webkit-scrollbar-thumb:hover {
+    background: rgba(14, 13, 12, 0.25);
+  }
+
+  /* Focus styles */
+  .focus-ring {
+    @apply outline-none ring-2 ring-accent ring-offset-2 ring-offset-paper;
+  }
+
+  /* DNA card expert avatar colors */
+  .avatar-purple { background: #EEEDFE; color: #534AB7; }
+  .avatar-teal   { background: #E1F5EE; color: #0F6E56; }
+  .avatar-coral  { background: #FAECE7; color: #993C1D; }
+  .avatar-amber  { background: #FAEEDA; color: #854F0B; }
+  .avatar-blue   { background: #E6F1FB; color: #185FA5; }
+
+  /* Complexity badge colors */
+  .complexity-low    { background: #EAF3DE; color: #3B6D11; }
+  .complexity-medium { background: #FAEEDA; color: #854F0B; }
+  .complexity-high   { background: #FCEBEB; color: #791F1F; }
+}
+
+@layer utilities {
+  .text-ink    { color: #0e0d0c; }
+  .text-ink-2  { color: #4a4844; }
+  .text-ink-3  { color: #8a8782; }
+  .bg-paper    { background-color: #faf9f7; }
+  .bg-paper-2  { background-color: #f2f0ec; }
+  .bg-paper-3  { background-color: #e8e5df; }
+}
