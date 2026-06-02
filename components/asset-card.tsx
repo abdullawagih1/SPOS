@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useRef } from "react";
-import { Copy, Download, CheckCircle, ChevronDown, ChevronUp, Clock, Share2, AlertCircle, Trash2, Loader2 } from "lucide-react";
+import { Copy, Download, CheckCircle, ChevronDown, ChevronUp, Clock, AlertCircle, Trash2, Loader2 } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
 import type { GeneratedAsset, DeliverableType } from "@/types";
 
@@ -28,6 +28,61 @@ type AssetStatus = "ready" | "needs_review";
 function getStatus(asset: GeneratedAsset): AssetStatus {
   if (asset.quality_score !== null && asset.quality_score < 7) return "needs_review";
   return "ready";
+}
+
+function formatInline(text: string): React.ReactNode {
+  const parts = text.split(/(\*\*[^*]+\*\*|\*[^*]+\*|`[^`]+`)/g);
+  return (
+    <>
+      {parts.map((part, i) => {
+        if (part.startsWith("**") && part.endsWith("**"))
+          return <strong key={i} className="font-medium text-ink">{part.slice(2, -2)}</strong>;
+        if (part.startsWith("*") && part.endsWith("*"))
+          return <em key={i}>{part.slice(1, -1)}</em>;
+        if (part.startsWith("`") && part.endsWith("`"))
+          return <code key={i} className="font-mono text-[10px] bg-paper-2 px-1 py-0.5 rounded text-accent">{part.slice(1, -1)}</code>;
+        return part;
+      })}
+    </>
+  );
+}
+
+function MarkdownContent({ content }: { content: string }) {
+  return (
+    <div className="space-y-2.5">
+      {content.split("\n").map((line, i) => {
+        if (line.startsWith("# "))
+          return <h1 key={i} className="font-display font-bold text-base text-ink mt-4 mb-1">{line.slice(2)}</h1>;
+        if (line.startsWith("## "))
+          return <h2 key={i} className="font-display font-semibold text-sm text-ink mt-4 mb-1 pb-1 border-b border-line">{line.slice(3)}</h2>;
+        if (line.startsWith("### "))
+          return <h3 key={i} className="font-display font-semibold text-xs text-ink mt-3 mb-1">{line.slice(4)}</h3>;
+        if (line.startsWith("- ") || line.startsWith("* "))
+          return (
+            <div key={i} className="flex items-start gap-2 text-xs text-ink-2 leading-relaxed">
+              <span className="text-accent mt-0.5 flex-shrink-0">→</span>
+              <span>{formatInline(line.slice(2))}</span>
+            </div>
+          );
+        if (line.match(/^\d+\. /)) {
+          const num = line.match(/^(\d+)\./)?.[1];
+          return (
+            <div key={i} className="flex items-start gap-2.5 text-xs text-ink-2 leading-relaxed">
+              <span className="font-mono text-[10px] text-ink-3 bg-paper-2 rounded px-1.5 py-0.5 flex-shrink-0 mt-0.5">{num}</span>
+              <span>{formatInline(line.replace(/^\d+\. /, ""))}</span>
+            </div>
+          );
+        }
+        if (line.startsWith("> "))
+          return <blockquote key={i} className="border-l-2 border-accent pl-3 italic text-xs text-ink-2">{line.slice(2)}</blockquote>;
+        if (line.startsWith("---"))
+          return <hr key={i} className="border-line my-2" />;
+        if (line.trim() === "")
+          return <div key={i} className="h-1" />;
+        return <p key={i} className="text-xs text-ink-2 leading-relaxed">{formatInline(line)}</p>;
+      })}
+    </div>
+  );
 }
 
 interface AssetCardProps {
@@ -139,8 +194,8 @@ export function AssetCard({ asset, onDelete }: AssetCardProps) {
 
       {expanded && (
         <div className="border-t border-line px-5 py-4">
-          <div className="text-xs text-ink-2 leading-relaxed whitespace-pre-wrap max-h-96 overflow-y-auto">
-            {asset.content}
+          <div className="max-h-96 overflow-y-auto">
+            <MarkdownContent content={asset.content} />
           </div>
         </div>
       )}
