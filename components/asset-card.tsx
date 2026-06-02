@@ -1,7 +1,8 @@
 "use client";
 
 import { useState } from "react";
-import { Copy, Download, CheckCircle, ChevronDown, ChevronUp, Clock, Share2, RefreshCw, AlertCircle } from "lucide-react";
+import { Copy, Download, CheckCircle, ChevronDown, ChevronUp, Clock, Share2, AlertCircle, Trash2, Loader2 } from "lucide-react";
+import { createClient } from "@/lib/supabase/client";
 import type { GeneratedAsset, DeliverableType } from "@/types";
 
 // ─── Asset metadata ────────────────────────────────────────────────────────────
@@ -65,11 +66,14 @@ const STATUS_CONFIG: Record<AssetStatus, { label: string; icon: React.ReactNode;
 
 interface AssetCardProps {
   asset: GeneratedAsset;
+  onDelete?: (id: string) => void;
 }
 
-export function AssetCard({ asset }: AssetCardProps) {
+export function AssetCard({ asset, onDelete }: AssetCardProps) {
   const [expanded, setExpanded] = useState(false);
   const [copied, setCopied] = useState(false);
+  const [deleting, setDeleting] = useState(false);
+  const supabase = createClient();
 
   const meta = ASSET_META[asset.deliverable_type] ?? {
     description: asset.deliverable_type.replace(/_/g, " "),
@@ -79,18 +83,9 @@ export function AssetCard({ asset }: AssetCardProps) {
   const status = getStatus(asset);
   const statusConfig = STATUS_CONFIG[status];
 
-  const ASSET_LABELS: Record<string, string> = {
-    investor_narrative: "Investor Narrative",
-    market_analysis: "Market Analysis",
-    mvp_plan: "MVP Plan",
-    product_requirements: "Product Requirements",
-    architecture_overview: "Architecture Overview",
-    agent_system_design: "Agent System Design",
-  };
-  
-  const deliverableLabel =
-    ASSET_LABELS[asset.deliverable_type] ??
-    asset.deliverable_type.replace(/_/g, " ");
+  const deliverableLabel = asset.deliverable_type
+    .replace(/_/g, " ")
+    .replace(/\b\w/g, (c) => c.toUpperCase());
 
   const createdAt = new Date(asset.created_at).toLocaleDateString("en-US", {
     month: "short",
@@ -113,6 +108,21 @@ export function AssetCard({ asset }: AssetCardProps) {
     a.download = `${asset.deliverable_type}.md`;
     a.click();
     URL.revokeObjectURL(url);
+  }
+
+  async function handleDelete() {
+    if (!confirm("Delete this asset? This cannot be undone.")) return;
+    setDeleting(true);
+    const { error } = await supabase
+      .from("generated_assets")
+      .delete()
+      .eq("id", asset.id);
+    if (error) {
+      setDeleting(false);
+      alert("Failed to delete. Please try again.");
+      return;
+    }
+    onDelete?.(asset.id);
   }
 
   return (
@@ -166,6 +176,18 @@ export function AssetCard({ asset }: AssetCardProps) {
             <Download className="w-3.5 h-3.5" />
           </button>
           <button
+            onClick={handleDelete}
+            disabled={deleting}
+            className="inline-flex items-center gap-1 px-2 py-1.5 border border-line rounded-lg text-xs hover:bg-[#FCEBEB] hover:text-[#791F1F] hover:border-[#F09595] transition-colors disabled:opacity-50"
+            aria-label="Delete"
+          >
+            {deleting ? (
+              <Loader2 className="w-3.5 h-3.5 animate-spin" />
+            ) : (
+              <Trash2 className="w-3.5 h-3.5" />
+            )}
+          </button>
+          <button
             onClick={() => setExpanded(!expanded)}
             className="inline-flex items-center gap-1 px-2 py-1.5 border border-line rounded-lg text-xs hover:bg-paper-2 transition-colors"
             aria-label={expanded ? "Collapse" : "Expand"}
@@ -187,14 +209,4 @@ export function AssetCard({ asset }: AssetCardProps) {
   );
 }
 
-// ─── Sorted asset list ─────────────────────────────────────────────────────────
-
-export function sortAssets(assets: GeneratedAsset[]): GeneratedAsset[] {
-  return [...assets].sort((a, b) => {
-    const orderA = ASSET_META[a.deliverable_type]?.order ?? 99;
-    const orderB = ASSET_META[b.deliverable_type]?.order ?? 99;
-    if (orderA !== orderB) return orderA - orderB;
-    // Same type — most recent first
-    return new Date(b.created_at).getTime() - new Date(a.created_at).getTime();
-  });
-}
+// Sort function moved to lib/sort-assets.ts (server-safe)
