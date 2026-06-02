@@ -3,7 +3,7 @@ import { createClient } from "@/lib/supabase/server";
 import { getProject, getProjectAssets } from "@/lib/db/queries";
 import { DNACard } from "@/components/dna-card";
 import { DeliverableSelector } from "@/components/deliverable-selector";
-import { AssetCard } from "@/components/asset-card";
+import { AssetCard, sortAssets } from "@/components/asset-card";
 import type { GeneratedAsset } from "@/types";
 
 interface ProjectPageProps {
