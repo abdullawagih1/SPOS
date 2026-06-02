@@ -5,13 +5,16 @@ import { HEALTHTECH_MARKET_ANALYSIS } from "./healthtech/market-analysis";
 import { HEALTHTECH_ARCHITECTURE_OVERVIEW } from "./healthtech/architecture-overview";
 import { HEALTHTECH_AGENT_SYSTEM_DESIGN } from "./healthtech/agent-system-design";
 import { HEALTHTECH_PRODUCT_REQUIREMENTS } from "./healthtech/product-requirements";
+import { HEALTHTECH_INTERACTIVE_SIMULATION } from "./healthtech/interactive-simulation";
 import { GENERIC_MVP_PLAN } from "./generic/mvp-plan";
 import { GENERIC_MARKET_ANALYSIS } from "./generic/market-analysis";
 import { GENERIC_ARCHITECTURE_OVERVIEW } from "./generic/architecture-overview";
 import { GENERIC_AGENT_SYSTEM_DESIGN } from "./generic/agent-system-design";
 import { GENERIC_PRODUCT_REQUIREMENTS } from "./generic/product-requirements";
+import { GENERIC_INTERACTIVE_SIMULATION } from "./generic/interactive-simulation";
+import { CONSTRUCTION_INTERACTIVE_SIMULATION } from "./construction/interactive-simulation";
 
-// Template registry — industry-specific templates (highest priority)
+// Industry-specific templates (highest priority)
 const TEMPLATES: PromptTemplate[] = [
   HEALTHTECH_INVESTOR_NARRATIVE,
   HEALTHTECH_MVP_PLAN,
@@ -19,15 +22,18 @@ const TEMPLATES: PromptTemplate[] = [
   HEALTHTECH_ARCHITECTURE_OVERVIEW,
   HEALTHTECH_AGENT_SYSTEM_DESIGN,
   HEALTHTECH_PRODUCT_REQUIREMENTS,
+  HEALTHTECH_INTERACTIVE_SIMULATION,
+  CONSTRUCTION_INTERACTIVE_SIMULATION,
 ];
 
-// Generic fallback templates for all industries
+// Generic fallback templates
 const GENERIC_TEMPLATES: Partial<Record<DeliverableType, PromptTemplate>> = {
   mvp_plan: GENERIC_MVP_PLAN,
   market_analysis: GENERIC_MARKET_ANALYSIS,
   architecture_overview: GENERIC_ARCHITECTURE_OVERVIEW,
   agent_system_design: GENERIC_AGENT_SYSTEM_DESIGN,
   product_requirements: GENERIC_PRODUCT_REQUIREMENTS,
+  interactive_simulation: GENERIC_INTERACTIVE_SIMULATION,
 };
 
 // Fallback generic investor narrative

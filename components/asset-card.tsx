@@ -12,6 +12,7 @@ const ASSET_META: Record<DeliverableType, { description: string; order: number }
   product_requirements: { description: "Full PRD with user stories, binary acceptance criteria, edge cases, and launch checklist.", order: 4 },
   architecture_overview: { description: "Tech stack, system diagram, database schema, HIPAA compliance layer, and infrastructure costs.", order: 5 },
   agent_system_design: { description: "Multi-agent roles, orchestration logic, clinical guardrails, and LangGraph implementation.", order: 6 },
+  interactive_simulation: { description: "Live HTML demo with dashboard, agent workflow, and realistic sample data. Open in browser and show investors.", order: 7 },
 };
 
 const ASSET_LABELS: Record<string, string> = {
@@ -21,6 +22,7 @@ const ASSET_LABELS: Record<string, string> = {
   product_requirements: "Product Requirements",
   architecture_overview: "Architecture Overview",
   agent_system_design: "Agent System Design",
+  interactive_simulation: "Interactive Simulation",
 };
 
 type AssetStatus = "ready" | "needs_review";
@@ -118,11 +120,14 @@ export function AssetCard({ asset, onDelete }: AssetCardProps) {
   }
 
   function handleDownload() {
-    const blob = new Blob([asset.content], { type: "text/plain" });
+    const isSimulation = asset.deliverable_type === "interactive_simulation";
+    const mimeType = isSimulation ? "text/html" : "text/plain";
+    const extension = isSimulation ? "html" : "md";
+    const blob = new Blob([asset.content], { type: mimeType });
     const url = URL.createObjectURL(blob);
     const a = document.createElement("a");
     a.href = url;
-    a.download = `${asset.deliverable_type}.md`;
+    a.download = `${asset.deliverable_type}.${extension}`;
     a.click();
     URL.revokeObjectURL(url);
   }
@@ -200,9 +205,36 @@ export function AssetCard({ asset, onDelete }: AssetCardProps) {
 
       {expanded && (
         <div className="border-t border-line px-5 py-4">
-          <div className="max-h-96 overflow-y-auto">
-            <MarkdownContent content={asset.content} />
-          </div>
+          {asset.deliverable_type === "interactive_simulation" ? (
+            <div>
+              <div className="flex items-center justify-between mb-3">
+                <span className="text-xs text-ink-3 font-mono">LIVE PREVIEW</span>
+                <a
+                  href={URL.createObjectURL(new Blob([asset.content], { type: "text/html" }))}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-xs text-accent hover:underline"
+                  onClick={(e) => {
+                    const blob = new Blob([asset.content], { type: "text/html" });
+                    const url = URL.createObjectURL(blob);
+                    (e.currentTarget as HTMLAnchorElement).href = url;
+                  }}
+                >
+                  Open in new tab ↗
+                </a>
+              </div>
+              <iframe
+                srcDoc={asset.content}
+                className="w-full h-96 border border-line rounded-lg"
+                sandbox="allow-scripts allow-same-origin"
+                title="Simulation preview"
+              />
+            </div>
+          ) : (
+            <div className="max-h-96 overflow-y-auto">
+              <MarkdownContent content={asset.content} />
+            </div>
+          )}
         </div>
       )}
     </div>

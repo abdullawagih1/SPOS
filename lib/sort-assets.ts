@@ -1,13 +1,12 @@
-
 import type { GeneratedAsset, DeliverableType } from "@/types";
 
 const ASSET_ORDER: Record<DeliverableType, number> = {
-  investor_narrative:    1,
-  market_analysis:       2,
-  mvp_plan:              3,
-  product_requirements:  4,
+  investor_narrative: 1,
+  market_analysis: 2,
+  mvp_plan: 3,
+  product_requirements: 4,
   architecture_overview: 5,
-  agent_system_design:   6,
+  agent_system_design: 6,
 };
 
 export function sortAssets(assets: GeneratedAsset[]): GeneratedAsset[] {

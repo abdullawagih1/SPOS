@@ -16,6 +16,7 @@ const bodySchema = z.object({
     "architecture_overview",
     "agent_system_design",
     "product_requirements",
+    "interactive_simulation",
   ]),
 });
 

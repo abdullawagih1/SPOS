@@ -29,11 +29,12 @@ export type BusinessModel =
 
 export type DeliverableType =
   | "investor_narrative"
-  | "mvp_plan"
   | "market_analysis"
+  | "mvp_plan"
+  | "product_requirements"
   | "architecture_overview"
   | "agent_system_design"
-  | "product_requirements";
+  | "interactive_simulation";
 
 export type JobStatus = "pending" | "running" | "complete" | "failed";
 
@@ -180,6 +181,14 @@ export const DELIVERABLE_CONFIGS: DeliverableConfig[] = [
     description: "Full PRD with user stories and acceptance criteria",
     estimated_minutes: 5,
     credit_cost: 6,
+    available_on: ["free", "pro", "startup", "agency", "enterprise"],
+  },
+  {
+    type: "interactive_simulation",
+    label: "Interactive simulation",
+    description: "Live HTML demo with dashboard, agent workflow, and sample data",
+    estimated_minutes: 5,
+    credit_cost: 8,
     available_on: ["free", "pro", "startup", "agency", "enterprise"],
   },
 ];
