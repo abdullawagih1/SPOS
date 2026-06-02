@@ -47,9 +47,15 @@ function formatInline(text: string): React.ReactNode {
   );
 }
 
+function isRTL(text: string): boolean {
+  const rtlChars = /[\u0600-\u06FF\u0750-\u077F\u0590-\u05FF]/;
+  return rtlChars.test(text.slice(0, 200));
+}
+
 function MarkdownContent({ content }: { content: string }) {
+  const rtl = isRTL(content);
   return (
-    <div className="space-y-2.5">
+    <div className="space-y-2.5" dir={rtl ? "rtl" : "ltr"}>
       {content.split("\n").map((line, i) => {
         if (line.startsWith("# "))
           return <h1 key={i} className="font-display font-bold text-base text-ink mt-4 mb-1">{line.slice(2)}</h1>;

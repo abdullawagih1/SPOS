@@ -118,7 +118,7 @@ export async function generateAsset(
 
   const message = await client.messages.create({
     model: "claude-sonnet-4-5",
-    max_tokens: 4000,
+    max_tokens: 2500,
     system: composed.system,
     messages: [{ role: "user", content: composed.user }],
   });

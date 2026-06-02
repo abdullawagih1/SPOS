@@ -11,7 +11,8 @@ Return ONLY a valid JSON object — no preamble, no explanation, no markdown cod
 
 JSON schema:
 {
-  "industry": one of: "healthtech"|"fintech"|"edtech"|"legaltech"|"construction"|"ai_saas"|"marketplace"|"hr_recruitment"|"other",
+  "industry": one of: "healthtech"|"fintech"|"proptech"|"edtech"|"legaltech"|"construction"|"climate"|"ecommerce"|"ai_saas"|"marketplace"|"hr_recruitment"|"other",
+  "sub_industry": a specific sub-category string (e.g. "real_estate_valuation", "cycle_tracking", "lending", "k12_tutoring") or null,
   "business_model": one of: "b2b_saas"|"b2c_saas"|"b2b2c"|"marketplace"|"services"|"hardware"|"other",
   "stage": one of: "pre_idea"|"pre_seed"|"seed"|"series_a",
   "complexity": {
@@ -35,6 +36,13 @@ JSON schema:
   "summary": "<2-3 sentence crisp summary of the startup>",
   "key_concepts": [<string>, <string>, <string>, <string>, <string>]
 }
+
+Industry selection rules:
+- Use "proptech" for real estate, property valuation, smart buildings, construction-tech that is software-first
+- Use "construction" for ERP, project management, heavy construction operations
+- Use "climate" for clean energy, carbon, sustainability tech
+- Use "ecommerce" for retail, D2C, marketplace for physical goods
+- Use "ai_saas" for horizontal AI tools not fitting another vertical
 
 Rules:
 - expert_team must have 3-5 people matching the detected industry

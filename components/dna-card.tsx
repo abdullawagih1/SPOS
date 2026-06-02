@@ -5,6 +5,11 @@ interface DNACardProps {
   dna: StartupDNA;
 }
 
+function isRTL(text: string): boolean {
+  const rtlChars = /[\u0600-\u06FF\u0750-\u077F\u0590-\u05FF]/;
+  return rtlChars.test(text.slice(0, 100));
+}
+
 function ComplexityBar({ value, label }: { value: number; label: string }) {
   const color =
     value <= 3 ? "bg-teal" :
@@ -47,7 +52,12 @@ export function DNACard({ dna }: DNACardProps) {
           </div>
         </div>
         {dna.summary && (
-          <p className="text-sm text-ink-2 mt-2 leading-relaxed">{dna.summary}</p>
+          <p
+            className="text-sm text-ink-2 mt-2 leading-relaxed"
+            dir={isRTL(dna.summary) ? "rtl" : "ltr"}
+          >
+            {dna.summary}
+          </p>
         )}
       </div>
 
@@ -62,7 +72,7 @@ export function DNACard({ dna }: DNACardProps) {
           </div>
           <ul className="space-y-2">
             {dna.opportunities.map((opp, i) => (
-              <li key={i} className="flex items-start gap-2 text-xs text-ink-2 leading-relaxed">
+              <li key={i} className="flex items-start gap-2 text-xs text-ink-2 leading-relaxed" dir={isRTL(opp) ? "rtl" : "ltr"}>
                 <span className="text-teal mt-0.5 flex-shrink-0">→</span>
                 {opp}
               </li>
@@ -80,7 +90,7 @@ export function DNACard({ dna }: DNACardProps) {
           </div>
           <ul className="space-y-2">
             {dna.risks.map((risk, i) => (
-              <li key={i} className="flex items-start gap-2 text-xs text-ink-2 leading-relaxed">
+              <li key={i} className="flex items-start gap-2 text-xs text-ink-2 leading-relaxed" dir={isRTL(risk) ? "rtl" : "ltr"}>
                 <span className="text-amber mt-0.5 flex-shrink-0">!</span>
                 {risk}
               </li>

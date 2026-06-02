@@ -7,9 +7,12 @@ export type StartupStage = "pre_idea" | "pre_seed" | "seed" | "series_a";
 export type Industry =
   | "healthtech"
   | "fintech"
+  | "proptech"
   | "edtech"
   | "legaltech"
   | "construction"
+  | "climate"
+  | "ecommerce"
   | "ai_saas"
   | "marketplace"
   | "hr_recruitment"
@@ -52,6 +55,7 @@ export interface ExpertPersona {
 
 export interface StartupDNA {
   industry: Industry;
+  sub_industry?: string;
   business_model: BusinessModel;
   stage: StartupStage;
   complexity: ComplexityScore;
