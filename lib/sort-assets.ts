@@ -7,13 +7,14 @@ const ASSET_ORDER: Record<DeliverableType, number> = {
   product_requirements: 4,
   architecture_overview: 5,
   agent_system_design: 6,
+  interactive_simulation: 7,
 };
 
 export function sortAssets(assets: GeneratedAsset[]): GeneratedAsset[] {
   return [...assets].sort((a, b) => {
-    const orderA = ASSET_ORDER[a.deliverable_type] ?? 99;
-    const orderB = ASSET_ORDER[b.deliverable_type] ?? 99;
-    if (orderA !== orderB) return orderA - orderB;
-    return new Date(b.created_at).getTime() - new Date(a.created_at).getTime();
+    const oa = ASSET_ORDER[a.deliverable_type] ?? 99;
+    const ob = ASSET_ORDER[b.deliverable_type] ?? 99;
+    return oa !== ob ? oa - ob
+      : new Date(b.created_at).getTime() - new Date(a.created_at).getTime();
   });
 }
