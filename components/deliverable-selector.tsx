@@ -2,20 +2,29 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { Loader2, Lock, Clock, Zap } from "lucide-react";
+import { Loader2, Lock, Clock, Zap, CheckCircle, RefreshCw, Download } from "lucide-react";
 import { DELIVERABLE_CONFIGS } from "@/types";
-import type { StartupDNA, Plan, DeliverableType } from "@/types";
+import type { StartupDNA, Plan, DeliverableType, GeneratedAsset } from "@/types";
 
 interface DeliverableSelectorProps {
   projectId: string;
   dna: StartupDNA | null;
   userPlan: Plan;
+  existingAssets?: GeneratedAsset[];
 }
 
-export function DeliverableSelector({ projectId, dna, userPlan }: DeliverableSelectorProps) {
+export function DeliverableSelector({
+  projectId,
+  dna,
+  userPlan,
+  existingAssets = [],
+}: DeliverableSelectorProps) {
   const router = useRouter();
   const [generating, setGenerating] = useState<DeliverableType | null>(null);
   const [error, setError] = useState<string | null>(null);
+
+  // Build a set of already-generated deliverable types
+  const generatedTypes = new Set(existingAssets.map((a) => a.deliverable_type));
 
   async function handleGenerate(deliverableType: DeliverableType) {
     if (!dna || generating) return;
@@ -37,15 +46,29 @@ export function DeliverableSelector({ projectId, dna, userPlan }: DeliverableSel
         return;
       }
 
-      // Store content in sessionStorage — not in URL
       sessionStorage.setItem("spos_last_content", data.content);
       sessionStorage.setItem("spos_last_type", deliverableType);
-
       router.push(`/dashboard/project/${projectId}/generate?type=${deliverableType}`);
-
     } catch {
       setError("Network error. Please try again.");
       setGenerating(null);
+    }
+  }
+
+  async function handleDownloadAll() {
+    if (existingAssets.length === 0) return;
+
+    // Download each asset as a separate file with a small delay
+    for (const asset of existingAssets) {
+      const label = asset.deliverable_type.replace(/_/g, "-");
+      const blob = new Blob([asset.content], { type: "text/plain" });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = `SPOS-${label}.md`;
+      a.click();
+      URL.revokeObjectURL(url);
+      await new Promise((r) => setTimeout(r, 300));
     }
   }
 
@@ -90,6 +113,7 @@ export function DeliverableSelector({ projectId, dna, userPlan }: DeliverableSel
           const isLocked = !config.available_on.includes(userPlan);
           const isGenerating = generating === config.type;
           const isDisabled = !!generating || isLocked;
+          const isGenerated = generatedTypes.has(config.type);
 
           return (
             <button
@@ -104,6 +128,8 @@ export function DeliverableSelector({ projectId, dna, userPlan }: DeliverableSel
                   ? "border-accent bg-accent-light cursor-wait"
                   : generating
                   ? "border-line opacity-50 cursor-not-allowed"
+                  : isGenerated
+                  ? "border-[#A0D9CE] bg-[#F0FBF8] hover:border-teal hover:bg-[#E3F5F1] cursor-pointer"
                   : "border-line hover:border-accent/50 hover:bg-accent-light/20 cursor-pointer"
                 }
               `}
@@ -114,13 +140,21 @@ export function DeliverableSelector({ projectId, dna, userPlan }: DeliverableSel
                 </div>
               )}
 
+              {isGenerated && !isLocked && (
+                <div className="absolute top-3 right-3">
+                  <CheckCircle className="w-3.5 h-3.5 text-teal" />
+                </div>
+              )}
+
               <div className="flex items-center gap-2 mb-2">
                 {isGenerating ? (
                   <Loader2 className="w-4 h-4 text-accent animate-spin" />
+                ) : isGenerated ? (
+                  <RefreshCw className="w-4 h-4 text-teal" />
                 ) : (
                   <Zap className={`w-4 h-4 ${isLocked ? "text-ink-3" : "text-accent"}`} />
                 )}
-                <span className={`text-sm font-medium ${isGenerating ? "text-accent" : "text-ink"}`}>
+                <span className={`text-sm font-medium ${isGenerating ? "text-accent" : isGenerated ? "text-teal" : "text-ink"}`}>
                   {config.label}
                 </span>
               </div>
@@ -129,14 +163,21 @@ export function DeliverableSelector({ projectId, dna, userPlan }: DeliverableSel
                 {config.description}
               </p>
 
-              <div className="flex items-center gap-3">
-                <span className="flex items-center gap-1 text-[10px] font-mono text-ink-3">
-                  <Clock className="w-3 h-3" />
-                  ~{config.estimated_minutes}min
-                </span>
-                <span className="text-[10px] font-mono text-ink-3">
-                  {config.credit_cost} credits
-                </span>
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-3">
+                  <span className="flex items-center gap-1 text-[10px] font-mono text-ink-3">
+                    <Clock className="w-3 h-3" />
+                    ~{config.estimated_minutes}min
+                  </span>
+                  <span className="text-[10px] font-mono text-ink-3">
+                    {config.credit_cost} credits
+                  </span>
+                </div>
+                {isGenerated && !isGenerating && (
+                  <span className="text-[10px] font-mono text-teal font-medium">
+                    Generated ↺
+                  </span>
+                )}
               </div>
 
               {isLocked && (
@@ -146,6 +187,25 @@ export function DeliverableSelector({ projectId, dna, userPlan }: DeliverableSel
           );
         })}
       </div>
+
+      {/* Download all button */}
+      {existingAssets.length > 0 && (
+        <div className="mt-5 pt-5 border-t border-line flex items-center justify-between">
+          <div>
+            <p className="text-sm font-medium text-ink">Startup package</p>
+            <p className="text-xs text-ink-3 mt-0.5">
+              {existingAssets.length} asset{existingAssets.length !== 1 ? "s" : ""} ready to download
+            </p>
+          </div>
+          <button
+            onClick={handleDownloadAll}
+            className="inline-flex items-center gap-2 px-4 py-2 bg-ink text-paper rounded-lg text-sm font-medium hover:bg-ink-2 transition-colors"
+          >
+            <Download className="w-4 h-4" />
+            Download all
+          </button>
+        </div>
+      )}
     </div>
   );
 }
