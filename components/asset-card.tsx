@@ -36,13 +36,7 @@ export function AssetCard({ asset }: AssetCardProps) {
     a.click();
     URL.revokeObjectURL(url);
   }
-
-  const qualityColor =
-    !asset.quality_score ? "text-ink-3" :
-    asset.quality_score >= 8 ? "text-teal" :
-    asset.quality_score >= 6 ? "text-amber" :
-    "text-coral";
-
+  
   return (
     <div className="bg-paper border border-line rounded-xl overflow-hidden">
       {/* Header */}
