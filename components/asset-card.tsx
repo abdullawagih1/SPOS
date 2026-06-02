@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useRef } from "react";
 import { Copy, Download, CheckCircle, ChevronDown, ChevronUp, Clock, Share2, AlertCircle, Trash2, Loader2 } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
 import type { GeneratedAsset, DeliverableType } from "@/types";
@@ -40,6 +40,7 @@ export function AssetCard({ asset, onDelete }: AssetCardProps) {
   const [copied, setCopied] = useState(false);
   const [deleting, setDeleting] = useState(false);
   const [confirmDelete, setConfirmDelete] = useState(false);
+  const supabaseRef = useRef(createClient());
 
   const meta = ASSET_META[asset.deliverable_type] ?? { description: "", order: 99 };
   const status = getStatus(asset);
@@ -72,8 +73,7 @@ export function AssetCard({ asset, onDelete }: AssetCardProps) {
       return;
     }
     setDeleting(true);
-    const supabase = createClient();
-    const { error } = await supabase
+    const { error } = await supabaseRef.current
       .from("generated_assets")
       .delete()
       .eq("id", asset.id);
