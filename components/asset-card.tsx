@@ -189,12 +189,12 @@ export function AssetCard({ asset }: AssetCardProps) {
 
 // ─── Sorted asset list ─────────────────────────────────────────────────────────
 
-// export function sortAssets(assets: GeneratedAsset[]): GeneratedAsset[] {
-//   return [...assets].sort((a, b) => {
-//     const orderA = ASSET_META[a.deliverable_type]?.order ?? 99;
-//     const orderB = ASSET_META[b.deliverable_type]?.order ?? 99;
-//     if (orderA !== orderB) return orderA - orderB;
-//     // Same type — most recent first
-//     return new Date(b.created_at).getTime() - new Date(a.created_at).getTime();
-//   });
-// }
+export function sortAssets(assets: GeneratedAsset[]): GeneratedAsset[] {
+  return [...assets].sort((a, b) => {
+    const orderA = ASSET_META[a.deliverable_type]?.order ?? 99;
+    const orderB = ASSET_META[b.deliverable_type]?.order ?? 99;
+    if (orderA !== orderB) return orderA - orderB;
+    // Same type — most recent first
+    return new Date(b.created_at).getTime() - new Date(a.created_at).getTime();
+  });
+}
