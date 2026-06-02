@@ -4,8 +4,16 @@ import { getProject, getProjectAssets } from "@/lib/db/queries";
 import { DNACard } from "@/components/dna-card";
 import { DeliverableSelector } from "@/components/deliverable-selector";
 import { AssetCard } from "@/components/asset-card";
-import { sortAssets } from "@/lib/sort-assets";
 import type { GeneratedAsset } from "@/types";
+
+const ASSET_ORDER: Record<string, number> = {
+  investor_narrative: 1,
+  market_analysis: 2,
+  mvp_plan: 3,
+  product_requirements: 4,
+  architecture_overview: 5,
+  agent_system_design: 6,
+};
 
 interface ProjectPageProps {
   params: Promise<{ id: string }>;
@@ -15,7 +23,6 @@ export default async function ProjectPage({ params }: ProjectPageProps) {
   const { id } = await params;
   const supabase = await createClient();
   const { data: { user } } = await supabase.auth.getUser();
-
   if (!user) notFound();
 
   const [project, assets] = await Promise.all([
@@ -25,26 +32,28 @@ export default async function ProjectPage({ params }: ProjectPageProps) {
 
   if (!project) notFound();
 
+  const sorted = [...assets].sort((a, b) => {
+    const oa = ASSET_ORDER[a.deliverable_type] ?? 99;
+    const ob = ASSET_ORDER[b.deliverable_type] ?? 99;
+    return oa !== ob ? oa - ob
+      : new Date(b.created_at).getTime() - new Date(a.created_at).getTime();
+  });
+
   return (
     <div className="p-8 max-w-5xl">
-      {/* Project header */}
       <div className="mb-8">
-        <p className="font-mono text-[10px] tracking-[1.5px] text-ink-3 mb-1">
-          PROJECT
-        </p>
+        <p className="font-mono text-[10px] tracking-[1.5px] text-ink-3 mb-1">PROJECT</p>
         <h1 className="font-display font-bold text-2xl text-ink leading-tight">
           {project.title}
         </h1>
       </div>
 
-      {/* DNA Card */}
       {project.startup_dna && (
         <div className="mb-8">
           <DNACard dna={project.startup_dna} />
         </div>
       )}
 
-      {/* Deliverable Selector */}
       <div className="mb-10">
         <h2 className="font-display font-semibold text-base mb-4">
           Generate startup assets
@@ -56,17 +65,16 @@ export default async function ProjectPage({ params }: ProjectPageProps) {
         />
       </div>
 
-      {/* Generated Assets */}
-      {assets.length > 0 && (
+      {sorted.length > 0 && (
         <div>
           <h2 className="font-display font-semibold text-base mb-4">
             Your assets
             <span className="ml-2 text-xs font-mono font-normal text-ink-3">
-              ({assets.length})
+              ({sorted.length})
             </span>
           </h2>
           <div className="space-y-3">
-            {sortAssets(assets).map((asset) => (
+            {sorted.map((asset) => (
               <AssetCard key={asset.id} asset={asset} />
             ))}
           </div>
