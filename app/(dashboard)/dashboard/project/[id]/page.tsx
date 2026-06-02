@@ -65,7 +65,7 @@ export default async function ProjectPage({ params }: ProjectPageProps) {
             </span>
           </h2>
           <div className="space-y-3">
-            {assets.map((asset) => (
+            {sortAssets(assets).map((asset) => (
               <AssetCard key={asset.id} asset={asset} />
             ))}
           </div>
