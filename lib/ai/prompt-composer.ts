@@ -116,9 +116,12 @@ export async function generateAsset(
   const composed = composePrompt(dna, deliverableType);
   const startTime = Date.now();
 
+  // Simulation needs more tokens for full HTML — other assets use standard limit
+  const maxTokens = deliverableType === "interactive_simulation" ? 8000 : 2500;
+
   const message = await client.messages.create({
     model: "claude-sonnet-4-5",
-    max_tokens: 2500,
+    max_tokens: maxTokens,
     system: composed.system,
     messages: [{ role: "user", content: composed.user }],
   });
