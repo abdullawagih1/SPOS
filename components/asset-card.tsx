@@ -111,14 +111,22 @@ export function AssetCard({ asset, onDelete }: AssetCardProps) {
   }
 
   async function handleDelete() {
-    if (!confirm("Delete this asset? This cannot be undone.")) return;
+    if (!confirmDelete) {
+      setConfirmDelete(true);
+      setTimeout(() => setConfirmDelete(false), 3000);
+      return;
+    }
     setDeleting(true);
     const { error } = await supabase
       .from("generated_assets")
       .delete()
       .eq("id", asset.id);
+    
+    console.log("Delete error:", JSON.stringify(error));  // ← أضف ده
+    
     if (error) {
       setDeleting(false);
+      setConfirmDelete(false);
       alert("Failed to delete. Please try again.");
       return;
     }
