@@ -53,11 +53,6 @@ export function AssetCard({ asset }: AssetCardProps) {
             <span className="text-sm font-medium capitalize">{deliverableLabel}</span>
             <div className="flex items-center gap-3 mt-0.5">
               <span className="text-[10px] font-mono text-ink-3">{createdAt}</span>
-              {asset.quality_score && (
-                <span className={`text-[10px] font-mono ${qualityColor}`}>
-                  Quality: {asset.quality_score.toFixed(1)}/10
-                </span>
-              )}
               <span className="text-[10px] font-mono text-ink-3">
                 {asset.tokens_used.toLocaleString()} tokens
               </span>
