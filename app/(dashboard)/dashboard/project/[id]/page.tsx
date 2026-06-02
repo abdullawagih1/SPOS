@@ -1,10 +1,14 @@
+"use client";
+
+import { useEffect, useState, use } from "react";
+import { useRouter } from "next/navigation";
 import { notFound } from "next/navigation";
-import { createClient } from "@/lib/supabase/server";
-import { getProject, getProjectAssets } from "@/lib/db/queries";
+import { createClient } from "@/lib/supabase/client";
 import { DNACard } from "@/components/dna-card";
 import { DeliverableSelector } from "@/components/deliverable-selector";
 import { AssetCard } from "@/components/asset-card";
-import type { GeneratedAsset } from "@/types";
+import { Loader2 } from "lucide-react";
+import type { Project, GeneratedAsset } from "@/types";
 
 const ASSET_ORDER: Record<string, number> = {
   investor_narrative: 1,
@@ -15,22 +19,41 @@ const ASSET_ORDER: Record<string, number> = {
   agent_system_design: 6,
 };
 
-interface ProjectPageProps {
+export default function ProjectPage({
+  params,
+}: {
   params: Promise<{ id: string }>;
-}
+}) {
+  const { id } = use(params);
+  const router = useRouter();
+  const supabase = createClient();
 
-export default async function ProjectPage({ params }: ProjectPageProps) {
-  const { id } = await params;
-  const supabase = await createClient();
-  const { data: { user } } = await supabase.auth.getUser();
-  if (!user) notFound();
+  const [project, setProject] = useState<Project | null>(null);
+  const [assets, setAssets] = useState<GeneratedAsset[]>([]);
+  const [loading, setLoading] = useState(true);
 
-  const [project, assets] = await Promise.all([
-    getProject(id, user.id),
-    getProjectAssets(id),
-  ]);
+  useEffect(() => {
+    async function load() {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) { router.push("/login"); return; }
 
-  if (!project) notFound();
+      const [{ data: proj }, { data: assetData }] = await Promise.all([
+        supabase.from("projects").select("*").eq("id", id).eq("user_id", user.id).single(),
+        supabase.from("generated_assets").select("*").eq("project_id", id),
+      ]);
+
+      if (!proj) { router.push("/dashboard"); return; }
+
+      setProject(proj);
+      setAssets(assetData ?? []);
+      setLoading(false);
+    }
+    load();
+  }, [id]);
+
+  function handleAssetDeleted(assetId: string) {
+    setAssets((prev) => prev.filter((a) => a.id !== assetId));
+  }
 
   const sorted = [...assets].sort((a, b) => {
     const oa = ASSET_ORDER[a.deliverable_type] ?? 99;
@@ -38,6 +61,16 @@ export default async function ProjectPage({ params }: ProjectPageProps) {
     return oa !== ob ? oa - ob
       : new Date(b.created_at).getTime() - new Date(a.created_at).getTime();
   });
+
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center py-24">
+        <Loader2 className="w-5 h-5 text-accent animate-spin" />
+      </div>
+    );
+  }
+
+  if (!project) return null;
 
   return (
     <div className="p-8 max-w-5xl">
@@ -62,6 +95,7 @@ export default async function ProjectPage({ params }: ProjectPageProps) {
           projectId={project.id}
           dna={project.startup_dna}
           userPlan="free"
+          existingAssets={sorted}
         />
       </div>
 
@@ -75,7 +109,11 @@ export default async function ProjectPage({ params }: ProjectPageProps) {
           </h2>
           <div className="space-y-3">
             {sorted.map((asset) => (
-              <AssetCard key={asset.id} asset={asset} />
+              <AssetCard
+                key={asset.id}
+                asset={asset}
+                onDelete={handleAssetDeleted}
+              />
             ))}
           </div>
         </div>
