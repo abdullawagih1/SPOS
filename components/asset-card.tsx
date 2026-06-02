@@ -79,9 +79,18 @@ export function AssetCard({ asset }: AssetCardProps) {
   const status = getStatus(asset);
   const statusConfig = STATUS_CONFIG[status];
 
-  const deliverableLabel = asset.deliverable_type
-    .replace(/_/g, " ")
-    .replace(/\b\w/g, (c) => c.toUpperCase());
+  const ASSET_LABELS: Record<string, string> = {
+    investor_narrative: "Investor Narrative",
+    market_analysis: "Market Analysis",
+    mvp_plan: "MVP Plan",
+    product_requirements: "Product Requirements",
+    architecture_overview: "Architecture Overview",
+    agent_system_design: "Agent System Design",
+  };
+  
+  const deliverableLabel =
+    ASSET_LABELS[asset.deliverable_type] ??
+    asset.deliverable_type.replace(/_/g, " ");
 
   const createdAt = new Date(asset.created_at).toLocaleDateString("en-US", {
     month: "short",
