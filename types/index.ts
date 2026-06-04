@@ -198,6 +198,6 @@ export const DELIVERABLE_CONFIGS: DeliverableConfig[] = [
     description: "Live HTML demo with dashboard, agent workflow, and sample data",
     estimated_minutes: 5,
     credit_cost: 10,
-    available_on: ["pro", "startup", "agency", "enterprise"],
+    available_on: ["free", "pro", "startup", "agency", "enterprise"],
   },
 ];
