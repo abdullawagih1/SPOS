@@ -11,23 +11,25 @@ import type { GeneratedAsset, DeliverableType } from "@/types";
 // ─── Asset metadata ──────────────────────────────────────────────────────────
 
 const ASSET_META: Record<DeliverableType, { description: string; order: number }> = {
-  investor_narrative:    { description: "Problem, insight, solution, market opportunity, business model, team, and funding ask.", order: 1 },
-  market_analysis:       { description: "Bottom-up TAM/SAM/SOM, competitive landscape, customer segmentation, and GTM strategy.", order: 2 },
-  mvp_plan:              { description: "Feature prioritization, must-have vs won't-have, 12-week sprint plan, and pivot triggers.", order: 3 },
-  product_requirements:  { description: "Full PRD with user stories, binary acceptance criteria, edge cases, and launch checklist.", order: 4 },
-  architecture_overview: { description: "Tech stack, system diagram, database schema, HIPAA compliance layer, and infrastructure costs.", order: 5 },
-  agent_system_design:   { description: "Multi-agent roles, orchestration logic, clinical guardrails, and LangGraph implementation.", order: 6 },
-  interactive_simulation:{ description: "Live interactive prototype with screens, workflow, and sample data. Ready to demo.", order: 7 },
+  investor_narrative:       { description: "Problem, insight, solution, market opportunity, business model, team, and funding ask.", order: 1 },
+  market_analysis:          { description: "Bottom-up TAM/SAM/SOM, competitive landscape, customer segmentation, and GTM strategy.", order: 2 },
+  business_model_economics: { description: "Revenue streams, pricing strategy, CAC/LTV, gross margin, break-even, and monetization risks.", order: 3 },
+  mvp_plan:                 { description: "Feature prioritization, must-have vs won't-have, 12-week sprint plan, and pivot triggers.", order: 4 },
+  product_requirements:     { description: "Full PRD with user stories, binary acceptance criteria, edge cases, and launch checklist.", order: 5 },
+  architecture_overview:    { description: "Tech stack, system diagram, database schema, HIPAA compliance layer, and infrastructure costs.", order: 6 },
+  agent_system_design:      { description: "Multi-agent roles, orchestration logic, clinical guardrails, and LangGraph implementation.", order: 7 },
+  interactive_simulation:   { description: "Live interactive prototype with screens, workflow, and sample data. Ready to demo.", order: 8 },
 };
 
 const ASSET_LABELS: Record<string, string> = {
-  investor_narrative:    "Investor Narrative",
-  market_analysis:       "Market Analysis",
-  mvp_plan:              "MVP Plan",
-  product_requirements:  "Product Requirements",
-  architecture_overview: "Architecture Overview",
-  agent_system_design:   "Agent System Design",
-  interactive_simulation:"Interactive Simulation",
+  investor_narrative:       "Investor Narrative",
+  market_analysis:          "Market Analysis",
+  business_model_economics: "Business Model & Unit Economics",
+  mvp_plan:                 "MVP Plan",
+  product_requirements:     "Product Requirements",
+  architecture_overview:    "Architecture Overview",
+  agent_system_design:      "Agent System Design",
+  interactive_simulation:   "Interactive Simulation",
 };
 
 type AssetStatus = "ready" | "needs_review";
