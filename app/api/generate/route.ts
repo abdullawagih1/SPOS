@@ -1,10 +1,13 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
-import { getProject, createGenerationJob } from "@/lib/db/queries";
-import { tasks } from "@trigger.dev/sdk/v3";
-import type { generateAssetTask } from "@/trigger/generate-asset";
+import { getProject, createGenerationJob, updateJobStatus, createAsset } from "@/lib/db/queries";
+import { generateAsset } from "@/lib/ai/prompt-composer";
+import { evaluateQuality } from "@/lib/ai/quality-evaluator";
+import { updateAssetQualityScore } from "@/lib/db/queries";
 import { z } from "zod";
 import type { DeliverableType } from "@/types";
+
+export const maxDuration = 300;
 
 const bodySchema = z.object({
   project_id: z.string().uuid(),
@@ -47,20 +50,39 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: "No DNA found. Analyze your idea first." }, { status: 400 });
     }
 
-    // Create job record
     const job = await createGenerationJob(project_id, deliverable_type);
+    await updateJobStatus(job.id, "running");
 
-    // Trigger background task — returns immediately, no timeout risk
-    await tasks.trigger<typeof generateAssetTask>("generate-asset", {
-      jobId: job.id,
+    const startTime = Date.now();
+
+    const { content, templateId, tokensUsed } = await generateAsset(
+      project.startup_dna,
+      deliverable_type
+    );
+
+    const generationTimeMs = Date.now() - startTime;
+
+    const asset = await createAsset({
       projectId: project_id,
+      templateId,
       deliverableType: deliverable_type,
-      dna: project.startup_dna,
+      content,
+      modelUsed: "claude-sonnet-4-5",
+      tokensUsed,
+      generationTimeMs,
     });
+
+    await updateJobStatus(job.id, "complete", asset.id);
+
+    // Quality eval async (non-blocking)
+    evaluateQuality(content, deliverable_type, project.startup_dna.industry, project.startup_dna.stage)
+      .then((scores) => updateAssetQualityScore(asset.id, scores.overall))
+      .catch((err) => console.error("[quality-eval]", err));
 
     return NextResponse.json({
       success: true,
       job_id: job.id,
+      content,
     });
 
   } catch (error) {

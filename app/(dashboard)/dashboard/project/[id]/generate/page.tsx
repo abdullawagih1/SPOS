@@ -88,48 +88,17 @@ function GenerateView({ projectId }: { projectId: string }) {
   const deliverableType = searchParams.get("type") as DeliverableType;
 
   const [content, setContent] = useState<string | null>(null);
-  const [polling, setPolling] = useState(false);
-  const [pollError, setPollError] = useState<string | null>(null);
   const [copied, setCopied] = useState(false);
   const [rating, setRating] = useState(0);
   const [ratingDone, setRatingDone] = useState(false);
 
   useEffect(() => {
-    const jobId = sessionStorage.getItem("spos_last_job_id");
-    sessionStorage.removeItem("spos_last_job_id");
-    sessionStorage.removeItem("spos_last_type");
-
-    if (!jobId) return;
-
-    setPolling(true);
-    let attempts = 0;
-    const MAX_ATTEMPTS = 90; // 3 minutes at 2s intervals
-
-    const interval = setInterval(async () => {
-      attempts++;
-      try {
-        const res = await fetch(`/api/job-status?job_id=${jobId}`);
-        const data = await res.json();
-
-        if (data.status === "complete" && data.content) {
-          clearInterval(interval);
-          setPolling(false);
-          setContent(data.content);
-        } else if (data.status === "failed") {
-          clearInterval(interval);
-          setPolling(false);
-          setPollError(data.error ?? "Generation failed. Please try again.");
-        } else if (attempts >= MAX_ATTEMPTS) {
-          clearInterval(interval);
-          setPolling(false);
-          setPollError("Timed out waiting for generation. Please go back and try again.");
-        }
-      } catch {
-        // network hiccup — keep polling
-      }
-    }, 2000);
-
-    return () => clearInterval(interval);
+    const stored = sessionStorage.getItem("spos_last_content");
+    if (stored) {
+      setContent(stored);
+      sessionStorage.removeItem("spos_last_content");
+      sessionStorage.removeItem("spos_last_type");
+    }
   }, []);
 
   async function handleCopy() {
@@ -154,25 +123,17 @@ function GenerateView({ projectId }: { projectId: string }) {
     return (
       <div className="min-h-full flex items-center justify-center">
         <div className="text-center">
-          {pollError ? (
-            <>
-              <p className="text-sm text-coral mb-2">{pollError}</p>
-              <button
-                onClick={() => router.push(`/dashboard/project/${projectId}`)}
-                className="text-xs text-accent underline"
-              >
-                Go back and try again
-              </button>
-            </>
-          ) : (
-            <>
-              <Loader2 className="w-8 h-8 text-accent animate-spin mx-auto mb-3" />
-              <p className="text-sm text-ink-2">
-                {polling ? "Generating your asset…" : "Loading result…"}
-              </p>
-              <p className="text-xs text-ink-3 mt-1">This can take up to 2 minutes</p>
-            </>
-          )}
+          <Loader2 className="w-8 h-8 text-accent animate-spin mx-auto mb-3" />
+          <p className="text-sm text-ink-2">Loading result...</p>
+          <p className="text-xs text-ink-3 mt-1">
+            If this persists,{" "}
+            <button
+              onClick={() => router.push(`/dashboard/project/${projectId}`)}
+              className="text-accent underline"
+            >
+              go back and try again
+            </button>
+          </p>
         </div>
       </div>
     );
