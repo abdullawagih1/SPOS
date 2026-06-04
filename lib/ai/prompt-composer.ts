@@ -33,9 +33,12 @@ export function composePrompt(
   const keyFeatures    = dna.key_concepts.slice(0, 6).join(", ");
   const targetUsers    = dna.key_concepts.slice(6, 9).join(", ") || "early adopters and business teams";
   const brandStyle     = `Clean, modern, professional — appropriate for ${dna.industry} at ${dna.stage} stage`;
+  const opportunitiesText = dna.opportunities.map((o, i) => `${i + 1}. ${o}`).join("\n");
+  const risksText         = dna.risks.map((r, i) => `${i + 1}. ${r}`).join("\n");
 
   function applyTokens(str: string): string {
     return str
+      // uppercase variants (legacy)
       .replace(/{{EXPERTS}}/g, expertRoles)
       .replace(/{{STARTUP_NAME}}/g, nameToken)
       .replace(/{{INDUSTRY}}/g, dna.industry)
@@ -44,7 +47,21 @@ export function composePrompt(
       .replace(/{{BUSINESS_MODEL}}/g, dna.business_model)
       .replace(/{{KEY_FEATURES}}/g, keyFeatures)
       .replace(/{{TARGET_USERS}}/g, targetUsers)
-      .replace(/{{BRAND_STYLE}}/g, brandStyle);
+      .replace(/{{BRAND_STYLE}}/g, brandStyle)
+      // lowercase variants (new prompt style)
+      .replace(/{{startup_name}}/g, nameToken)
+      .replace(/{{industry}}/g, dna.industry)
+      .replace(/{{sub_industry}}/g, subIndustry)
+      .replace(/{{business_model}}/g, dna.business_model)
+      .replace(/{{stage}}/g, dna.stage)
+      .replace(/{{summary}}/g, dna.summary)
+      .replace(/{{key_concepts}}/g, keyFeatures)
+      .replace(/{{core_features}}/g, keyFeatures)
+      .replace(/{{target_users}}/g, targetUsers)
+      .replace(/{{brand_style}}/g, brandStyle)
+      .replace(/{{expert_team}}/g, expertRoles)
+      .replace(/{{opportunities}}/g, opportunitiesText)
+      .replace(/{{risks}}/g, risksText);
   }
 
   const system = [
@@ -60,11 +77,6 @@ export function composePrompt(
     "=== OUTPUT FORMAT ===",
     applyTokens(template.format_layer),
   ].join("\n");
-
-  const opportunitiesText = dna.opportunities
-    .map((o, i) => `${i + 1}. ${o}`)
-    .join("\n");
-  const risksText = dna.risks.map((r, i) => `${i + 1}. ${r}`).join("\n");
 
   const user = `Generate the ${deliverableType.replace(/_/g, " ")} for this startup:
 
