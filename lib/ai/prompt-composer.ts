@@ -1,5 +1,5 @@
 import Anthropic from "@anthropic-ai/sdk";
-import type { StartupDNA, DeliverableType, PromptTemplate } from "@/types";
+import type { StartupDNA, DeliverableType } from "@/types";
 import { getTemplateForDNA } from "@/lib/templates";
 
 const client = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
@@ -19,31 +19,46 @@ export interface ComposedPrompt {
  */
 export function composePrompt(
   dna: StartupDNA,
-  deliverableType: DeliverableType
+  deliverableType: DeliverableType,
+  startupName?: string
 ): ComposedPrompt {
   const template = getTemplateForDNA(dna, deliverableType);
 
-  // Build the expert role description from the DNA's expert team
   const expertRoles = dna.expert_team
     .map((e) => `- ${e.name} (${e.role}): ${e.background}`)
     .join("\n");
 
-  // Replace placeholders in template layers
+  const nameToken      = startupName ?? "This Startup";
+  const subIndustry    = dna.sub_industry ?? dna.industry;
+  const keyFeatures    = dna.key_concepts.slice(0, 6).join(", ");
+  const targetUsers    = dna.key_concepts.slice(6, 9).join(", ") || "early adopters and business teams";
+  const brandStyle     = `Clean, modern, professional — appropriate for ${dna.industry} at ${dna.stage} stage`;
+
+  function applyTokens(str: string): string {
+    return str
+      .replace(/{{EXPERTS}}/g, expertRoles)
+      .replace(/{{STARTUP_NAME}}/g, nameToken)
+      .replace(/{{INDUSTRY}}/g, dna.industry)
+      .replace(/{{SUB_INDUSTRY}}/g, subIndustry)
+      .replace(/{{STAGE}}/g, dna.stage)
+      .replace(/{{BUSINESS_MODEL}}/g, dna.business_model)
+      .replace(/{{KEY_FEATURES}}/g, keyFeatures)
+      .replace(/{{TARGET_USERS}}/g, targetUsers)
+      .replace(/{{BRAND_STYLE}}/g, brandStyle);
+  }
+
   const system = [
     "=== ROLE ===",
-    template.role_layer.replace("{{EXPERTS}}", expertRoles),
+    applyTokens(template.role_layer),
     "",
     "=== DOMAIN CONTEXT ===",
-    template.context_layer
-      .replace("{{INDUSTRY}}", dna.industry)
-      .replace("{{STAGE}}", dna.stage)
-      .replace("{{BUSINESS_MODEL}}", dna.business_model),
+    applyTokens(template.context_layer),
     "",
     "=== CONSTRAINTS ===",
-    template.constraint_layer.replace("{{STAGE}}", dna.stage),
+    applyTokens(template.constraint_layer),
     "",
     "=== OUTPUT FORMAT ===",
-    template.format_layer,
+    applyTokens(template.format_layer),
   ].join("\n");
 
   const opportunitiesText = dna.opportunities
@@ -76,13 +91,14 @@ Technical complexity: ${dna.complexity.technical}/10 | Regulatory: ${dna.complex
  */
 export async function* generateAssetStream(
   dna: StartupDNA,
-  deliverableType: DeliverableType
+  deliverableType: DeliverableType,
+  startupName?: string
 ): AsyncGenerator<string, { fullText: string; templateId: string; tokensUsed: number }> {
-  const composed = composePrompt(dna, deliverableType);
+  const composed = composePrompt(dna, deliverableType, startupName);
   let fullText = "";
   let tokensUsed = 0;
 
-  const stream = await client.messages.stream({
+  const stream = client.messages.stream({
     model: "claude-sonnet-4-5",
     max_tokens: 4000,
     system: composed.system,
@@ -111,9 +127,10 @@ export async function* generateAssetStream(
  */
 export async function generateAsset(
   dna: StartupDNA,
-  deliverableType: DeliverableType
+  deliverableType: DeliverableType,
+  startupName?: string
 ): Promise<{ content: string; templateId: string; tokensUsed: number }> {
-  const composed = composePrompt(dna, deliverableType);
+  const composed = composePrompt(dna, deliverableType, startupName);
   const startTime = Date.now();
 
   // Simulation needs more tokens for full HTML — other assets use standard limit

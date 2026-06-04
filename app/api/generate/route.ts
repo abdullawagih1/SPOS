@@ -57,7 +57,8 @@ export async function POST(req: NextRequest) {
 
     const { content, templateId, tokensUsed } = await generateAsset(
       project.startup_dna,
-      deliverable_type
+      deliverable_type,
+      project.title
     );
 
     const generationTimeMs = Date.now() - startTime;
