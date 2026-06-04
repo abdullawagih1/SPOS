@@ -46,7 +46,7 @@ export function DeliverableSelector({
         return;
       }
 
-      sessionStorage.setItem("spos_last_content", data.content);
+      sessionStorage.setItem("spos_last_job_id", data.job_id);
       sessionStorage.setItem("spos_last_type", deliverableType);
       router.push(`/dashboard/project/${projectId}/generate?type=${deliverableType}`);
     } catch {
