@@ -6,12 +6,14 @@ import { HEALTHTECH_ARCHITECTURE_OVERVIEW } from "./healthtech/architecture-over
 import { HEALTHTECH_AGENT_SYSTEM_DESIGN } from "./healthtech/agent-system-design";
 import { HEALTHTECH_PRODUCT_REQUIREMENTS } from "./healthtech/product-requirements";
 import { HEALTHTECH_INTERACTIVE_SIMULATION } from "./healthtech/interactive-simulation";
+import { HEALTHTECH_BUSINESS_MODEL_ECONOMICS } from "./healthtech/business-model";
 import { GENERIC_MVP_PLAN } from "./generic/mvp-plan";
 import { GENERIC_MARKET_ANALYSIS } from "./generic/market-analysis";
 import { GENERIC_ARCHITECTURE_OVERVIEW } from "./generic/architecture-overview";
 import { GENERIC_AGENT_SYSTEM_DESIGN } from "./generic/agent-system-design";
 import { GENERIC_PRODUCT_REQUIREMENTS } from "./generic/product-requirements";
 import { GENERIC_INTERACTIVE_SIMULATION } from "./generic/interactive-simulation";
+import { GENERIC_BUSINESS_MODEL_ECONOMICS } from "./generic/business-model";
 import { CONSTRUCTION_INTERACTIVE_SIMULATION } from "./construction/interactive-simulation";
 
 // Industry-specific templates (highest priority)
@@ -23,6 +25,7 @@ const TEMPLATES: PromptTemplate[] = [
   HEALTHTECH_AGENT_SYSTEM_DESIGN,
   HEALTHTECH_PRODUCT_REQUIREMENTS,
   HEALTHTECH_INTERACTIVE_SIMULATION,
+  HEALTHTECH_BUSINESS_MODEL_ECONOMICS,
   CONSTRUCTION_INTERACTIVE_SIMULATION,
 ];
 
@@ -34,6 +37,7 @@ const GENERIC_TEMPLATES: Partial<Record<DeliverableType, PromptTemplate>> = {
   agent_system_design: GENERIC_AGENT_SYSTEM_DESIGN,
   product_requirements: GENERIC_PRODUCT_REQUIREMENTS,
   interactive_simulation: GENERIC_INTERACTIVE_SIMULATION,
+  business_model_economics: GENERIC_BUSINESS_MODEL_ECONOMICS,
 };
 
 // Fallback generic investor narrative

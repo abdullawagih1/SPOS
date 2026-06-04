@@ -13,6 +13,7 @@ const bodySchema = z.object({
     "investor_narrative",
     "mvp_plan",
     "market_analysis",
+    "business_model_economics",
     "architecture_overview",
     "agent_system_design",
     "product_requirements",

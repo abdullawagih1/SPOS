@@ -30,6 +30,7 @@ export type BusinessModel =
 export type DeliverableType =
   | "investor_narrative"
   | "market_analysis"
+  | "business_model_economics"
   | "mvp_plan"
   | "product_requirements"
   | "architecture_overview"
@@ -144,6 +145,22 @@ export const DELIVERABLE_CONFIGS: DeliverableConfig[] = [
     available_on: ["free", "pro", "startup", "agency", "enterprise"],
   },
   {
+    type: "market_analysis",
+    label: "Market analysis",
+    description: "TAM/SAM/SOM, competitive landscape, positioning",
+    estimated_minutes: 3,
+    credit_cost: 4,
+    available_on: ["free", "pro", "startup", "agency", "enterprise"],
+  },
+  {
+    type: "business_model_economics",
+    label: "Business model & unit economics",
+    description: "Revenue streams, pricing, CAC/LTV, gross margin, and break-even analysis",
+    estimated_minutes: 3,
+    credit_cost: 4,
+    available_on: ["free", "pro", "startup", "agency", "enterprise"],
+  },
+  {
     type: "mvp_plan",
     label: "MVP plan",
     description: "Feature prioritization, sprint plan, timeline",
@@ -152,11 +169,11 @@ export const DELIVERABLE_CONFIGS: DeliverableConfig[] = [
     available_on: ["free", "pro", "startup", "agency", "enterprise"],
   },
   {
-    type: "market_analysis",
-    label: "Market analysis",
-    description: "TAM/SAM/SOM, competitive landscape, positioning",
-    estimated_minutes: 3,
-    credit_cost: 4,
+    type: "product_requirements",
+    label: "Product requirements",
+    description: "Full PRD with user stories and acceptance criteria",
+    estimated_minutes: 5,
+    credit_cost: 6,
     available_on: ["free", "pro", "startup", "agency", "enterprise"],
   },
   {
@@ -173,14 +190,6 @@ export const DELIVERABLE_CONFIGS: DeliverableConfig[] = [
     description: "Multi-agent architecture, roles, orchestration",
     estimated_minutes: 4,
     credit_cost: 5,
-    available_on: ["free", "pro", "startup", "agency", "enterprise"],
-  },
-  {
-    type: "product_requirements",
-    label: "Product requirements",
-    description: "Full PRD with user stories and acceptance criteria",
-    estimated_minutes: 5,
-    credit_cost: 6,
     available_on: ["free", "pro", "startup", "agency", "enterprise"],
   },
   {
