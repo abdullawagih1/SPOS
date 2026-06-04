@@ -146,7 +146,7 @@ export async function generateAsset(
   const startTime = Date.now();
 
   // Simulation needs more tokens for full HTML — other assets use standard limit
-  const maxTokens = deliverableType === "interactive_simulation" ? 8000 : 2500;
+  const maxTokens = deliverableType === "interactive_simulation" ? 12000 : 2500;
 
   const message = await client.messages.create({
     model: "claude-sonnet-4-5",
