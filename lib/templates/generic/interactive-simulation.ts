@@ -42,13 +42,15 @@ Expert team:
 
 Brand style: {{brand_style}}
 
-DESIGN RULES:
-- Do NOT use a conventional left-sidebar SaaS layout — be creative and original
-- Make the interface polished, modern, premium, and investor-ready
-- Use realistic industry-specific dummy data throughout
-- Make content technically and commercially credible
-- Challenge the startup idea intelligently while staying within its core scope
-- Make the user experience dynamic and interactive`,
+DESIGN RULES — CRITICAL:
+- Do NOT create a generic SaaS dashboard. This is a PRODUCT SIMULATION, not an admin panel.
+- Do NOT use left-sidebar navigation unless the product itself is a dashboard tool.
+- Design the layout to reflect the product's core experience — if it's a marketplace, show the marketplace; if it's a health app, show the health journey; if it's a workflow tool, show the workflow.
+- Make the interface polished, modern, premium, and investor-ready.
+- Use realistic industry-specific dummy data throughout — zero generic placeholders.
+- Make content technically and commercially credible.
+- The "wow moment" must be visible within 5 seconds of opening — lead with the most impressive feature.
+- Make the user experience dynamic and interactive — it must feel like a real product, not a mockup.`,
 
   constraint_layer: `TECHNICAL RULES:
 - Output only raw HTML — no Markdown fences, no explanation, no preamble

@@ -119,6 +119,7 @@ function InteractiveSimulationViewer({
   onDelete?: (id: string) => void;
 }) {
   const [showCode, setShowCode] = useState(false);
+  const [fullscreen, setFullscreen] = useState(false);
   const [copied, setCopied] = useState(false);
   const [deleting, setDeleting] = useState(false);
   const [confirmDelete, setConfirmDelete] = useState(false);
@@ -141,9 +142,7 @@ function InteractiveSimulationViewer({
   }
 
   function handleFullscreen() {
-    const blob = new Blob([html], { type: "text/html" });
-    const url = URL.createObjectURL(blob);
-    window.open(url, "_blank");
+    setFullscreen(true);
   }
 
   async function handleCopyCode() {
@@ -172,90 +171,125 @@ function InteractiveSimulationViewer({
   }
 
   return (
-    <div className="bg-paper border border-line rounded-xl overflow-hidden">
-      {/* Header */}
-      <div className="px-5 py-4 border-b border-line">
-        <div className="flex items-start justify-between gap-4">
-          <div className="flex-1 min-w-0">
-            <div className="flex items-center gap-2.5 mb-1">
-              <span className="text-sm font-medium text-ink">Interactive Simulation</span>
-              <span className="inline-flex items-center gap-1 text-[10px] font-medium px-2 py-0.5 rounded-full bg-accent-light text-accent border border-accent-border">
-                <Play className="w-2.5 h-2.5" /> Live preview
-              </span>
-            </div>
-            <p className="text-xs text-ink-2 mb-2">
-              Live interactive prototype with screens, workflow, and sample data. Ready to demo.
-            </p>
-            <div className="flex items-center gap-3">
-              <span className="flex items-center gap-1 text-[10px] font-mono text-ink-3">
-                <Clock className="w-3 h-3" />{createdAt}
-              </span>
-              <span className="text-[10px] font-mono text-ink-3">
-                {asset.tokens_used.toLocaleString()} tokens
-              </span>
+    <>
+      {/* ── Fullscreen modal ─────────────────────────────────────────────── */}
+      {fullscreen && (
+        <div className="fixed inset-0 z-50 bg-black flex flex-col">
+          {/* Modal header */}
+          <div className="flex items-center justify-between px-4 py-2 bg-[#111] border-b border-white/10 flex-shrink-0">
+            <span className="text-xs font-mono text-white/60">Interactive Simulation — Fullscreen</span>
+            <div className="flex items-center gap-2">
+              <button
+                onClick={handleDownload}
+                className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-white/10 hover:bg-white/20 text-white rounded-lg text-xs transition-colors"
+              >
+                <Download className="w-3.5 h-3.5" /> Download HTML
+              </button>
+              <button
+                onClick={() => setFullscreen(false)}
+                className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-white/10 hover:bg-white/20 text-white rounded-lg text-xs transition-colors"
+              >
+                ✕ Close
+              </button>
             </div>
           </div>
-
-          {/* Actions */}
-          <div className="flex items-center gap-2 flex-shrink-0 flex-wrap justify-end">
-            <button
-              onClick={handleFullscreen}
-              className="inline-flex items-center gap-1.5 px-3 py-1.5 border border-line rounded-lg text-xs hover:bg-paper-2 transition-colors"
-            >
-              <Maximize2 className="w-3.5 h-3.5" /> Open fullscreen
-            </button>
-            <button
-              onClick={handleDownload}
-              className="inline-flex items-center gap-1.5 px-3 py-1.5 border border-line rounded-lg text-xs hover:bg-paper-2 transition-colors"
-            >
-              <Download className="w-3.5 h-3.5" /> Download HTML
-            </button>
-            <button
-              onClick={handleCopyCode}
-              className="inline-flex items-center gap-1.5 px-3 py-1.5 border border-line rounded-lg text-xs hover:bg-paper-2 transition-colors"
-            >
-              {copied
-                ? <><CheckCircle className="w-3.5 h-3.5 text-teal" /> Copied</>
-                : <><Copy className="w-3.5 h-3.5" /> Copy code</>
-              }
-            </button>
-            <button
-              onClick={() => setShowCode(!showCode)}
-              className={`inline-flex items-center gap-1.5 px-2.5 py-1.5 border rounded-lg text-xs transition-colors ${showCode ? "bg-paper-2 border-line" : "border-line hover:bg-paper-2"}`}
-            >
-              <Code2 className="w-3.5 h-3.5" />
-            </button>
-            <button
-              onClick={handleDeleteClick}
-              disabled={deleting}
-              className={`inline-flex items-center gap-1.5 px-2.5 py-1.5 border rounded-lg text-xs transition-colors disabled:opacity-50 ${
-                confirmDelete
-                  ? "bg-[#FCEBEB] text-[#791F1F] border-[#F09595] font-medium"
-                  : "border-line hover:bg-[#FCEBEB] hover:text-[#791F1F] hover:border-[#F09595]"
-              }`}
-            >
-              {deleting ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : confirmDelete ? <><Trash2 className="w-3.5 h-3.5" /> Confirm</> : <Trash2 className="w-3.5 h-3.5" />}
-            </button>
-          </div>
-        </div>
-      </div>
-
-      {/* Code view */}
-      {showCode && (
-        <div className="border-b border-line bg-paper-2 px-5 py-3 max-h-48 overflow-auto">
-          <pre className="text-[10px] font-mono text-ink-3 whitespace-pre-wrap">{html.slice(0, 2000)}...</pre>
+          {/* Full-height iframe */}
+          <iframe
+            srcDoc={html}
+            className="flex-1 w-full border-0"
+            sandbox="allow-scripts allow-same-origin"
+            title="Interactive simulation fullscreen"
+          />
         </div>
       )}
 
-      {/* iframe preview */}
-      <iframe
-        srcDoc={html}
-        className="w-full border-0"
-        style={{ height: "720px" }}
-        sandbox="allow-scripts allow-same-origin"
-        title="Interactive simulation preview"
-      />
-    </div>
+      {/* ── Embedded card ────────────────────────────────────────────────── */}
+      <div className="bg-paper border border-line rounded-xl overflow-hidden">
+        {/* Header */}
+        <div className="px-5 py-4 border-b border-line">
+          <div className="flex items-start justify-between gap-4">
+            <div className="flex-1 min-w-0">
+              <div className="flex items-center gap-2.5 mb-1">
+                <span className="text-sm font-medium text-ink">Interactive Simulation</span>
+                <span className="inline-flex items-center gap-1 text-[10px] font-medium px-2 py-0.5 rounded-full bg-accent-light text-accent border border-accent-border">
+                  <Play className="w-2.5 h-2.5" /> Live preview
+                </span>
+              </div>
+              <p className="text-xs text-ink-2 mb-2">
+                Live interactive prototype with screens, workflow, and sample data. Ready to demo.
+              </p>
+              <div className="flex items-center gap-3">
+                <span className="flex items-center gap-1 text-[10px] font-mono text-ink-3">
+                  <Clock className="w-3 h-3" />{createdAt}
+                </span>
+                <span className="text-[10px] font-mono text-ink-3">
+                  {asset.tokens_used.toLocaleString()} tokens
+                </span>
+              </div>
+            </div>
+
+            {/* Actions */}
+            <div className="flex items-center gap-2 flex-shrink-0 flex-wrap justify-end">
+              {/* Primary CTA */}
+              <button
+                onClick={handleFullscreen}
+                className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-accent text-white rounded-lg text-xs hover:bg-accent/90 transition-colors font-medium"
+              >
+                <Maximize2 className="w-3.5 h-3.5" /> Open fullscreen
+              </button>
+              <button
+                onClick={handleDownload}
+                className="inline-flex items-center gap-1.5 px-3 py-1.5 border border-line rounded-lg text-xs hover:bg-paper-2 transition-colors"
+              >
+                <Download className="w-3.5 h-3.5" /> Download HTML
+              </button>
+              <button
+                onClick={handleCopyCode}
+                className="inline-flex items-center gap-1.5 px-3 py-1.5 border border-line rounded-lg text-xs hover:bg-paper-2 transition-colors"
+              >
+                {copied
+                  ? <><CheckCircle className="w-3.5 h-3.5 text-teal" /> Copied</>
+                  : <><Copy className="w-3.5 h-3.5" /> Copy code</>
+                }
+              </button>
+              <button
+                onClick={() => setShowCode(!showCode)}
+                className={`inline-flex items-center gap-1.5 px-2.5 py-1.5 border rounded-lg text-xs transition-colors ${showCode ? "bg-paper-2 border-line" : "border-line hover:bg-paper-2"}`}
+              >
+                <Code2 className="w-3.5 h-3.5" />
+              </button>
+              <button
+                onClick={handleDeleteClick}
+                disabled={deleting}
+                className={`inline-flex items-center gap-1.5 px-2.5 py-1.5 border rounded-lg text-xs transition-colors disabled:opacity-50 ${
+                  confirmDelete
+                    ? "bg-[#FCEBEB] text-[#791F1F] border-[#F09595] font-medium"
+                    : "border-line hover:bg-[#FCEBEB] hover:text-[#791F1F] hover:border-[#F09595]"
+                }`}
+              >
+                {deleting ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : confirmDelete ? <><Trash2 className="w-3.5 h-3.5" /> Confirm</> : <Trash2 className="w-3.5 h-3.5" />}
+              </button>
+            </div>
+          </div>
+        </div>
+
+        {/* Code view */}
+        {showCode && (
+          <div className="border-b border-line bg-paper-2 px-5 py-3 max-h-48 overflow-auto">
+            <pre className="text-[10px] font-mono text-ink-3 whitespace-pre-wrap">{html.slice(0, 2000)}...</pre>
+          </div>
+        )}
+
+        {/* Embedded iframe preview — taller for usability */}
+        <iframe
+          srcDoc={html}
+          className="w-full border-0"
+          style={{ height: "850px" }}
+          sandbox="allow-scripts allow-same-origin"
+          title="Interactive simulation preview"
+        />
+      </div>
+    </>
   );
 }
 
