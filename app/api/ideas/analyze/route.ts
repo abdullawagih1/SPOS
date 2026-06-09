@@ -4,6 +4,8 @@ import { parseIdea } from "@/lib/ai/idea-parser";
 import { createIdea, createProject, updateProjectDNA, updateIdeaDNA } from "@/lib/db/queries";
 import { z } from "zod";
 
+export const maxDuration = 60;
+
 const bodySchema = z.object({
   raw_text: z.string().min(10, "Idea must be at least 10 characters"),
   project_id: z.string().uuid().optional(),
