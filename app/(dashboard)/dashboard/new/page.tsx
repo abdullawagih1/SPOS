@@ -75,9 +75,6 @@ export default function NewProjectPage() {
               disabled={loading}
               className="w-full border border-line rounded-xl px-5 py-4 text-sm bg-paper focus:outline-none focus:ring-2 focus:ring-accent focus:ring-offset-1 transition-shadow resize-none placeholder:text-ink-3 disabled:opacity-60"
             />
-            <div className="absolute bottom-4 right-4 text-xs font-mono text-ink-3">
-              {idea.length}/2000
-            </div>
           </div>
 
           <div className="flex items-center justify-between mt-4">

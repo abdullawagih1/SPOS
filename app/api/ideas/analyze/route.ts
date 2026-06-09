@@ -5,7 +5,7 @@ import { createIdea, createProject, updateProjectDNA, updateIdeaDNA } from "@/li
 import { z } from "zod";
 
 const bodySchema = z.object({
-  raw_text: z.string().min(10, "Idea must be at least 10 characters").max(2000),
+  raw_text: z.string().min(10, "Idea must be at least 10 characters"),
   project_id: z.string().uuid().optional(),
 });
 
